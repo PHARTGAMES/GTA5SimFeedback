@@ -23,9 +23,13 @@ Download: https://www.gta5-mods.com/tools/script-hook-v
 
 Download: https://www.gta5-mods.com/tools/scripthookv-net<br>
 
-3. Copy the contents of the GTA5Mod folder within the release .zip into your GTA5 installation root folder.
+3. Download and extract the latest release zip of GTAVSimFeedback.
 
-4. Copy the contents of the SimFeedbackPlugin folder within the release .zip into your SimFeedback root folder.
+Download: https://github.com/PHARTGAMES/GTA5SimFeedback/tree/master/Releases
+
+4. Copy the contents of the GTA5Mod folder within the GTAVSimFeedback .zip into your GTA5 installation root folder.
+
+5. Copy the contents of the SimFeedbackPlugin folder within the GTAVSimFeedback .zip into your SimFeedback root folder.
 
 RECOMMENDED SUPPORTING MODS
 ===========================
