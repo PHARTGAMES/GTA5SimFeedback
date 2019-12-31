@@ -1,24 +1,24 @@
-﻿//
-// Copyright (c) 2019 Rausch IT
+﻿//MIT License
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy 
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights 
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-// copies of the Software, and to permit persons to whom the Software is 
-// furnished to do so, subject to the following conditions:
+//Copyright(c) 2019 PHARTGAMES
 //
-// The above copyright notice and this permission notice shall be included in 
-// all copies or substantial portions of the Software.
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
-// THE SOFTWARE.
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
 //
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
 //
 using System;
 using System.Collections.Generic;
@@ -43,6 +43,15 @@ namespace GTAVTelemetry
         private TelemetrySender telemetrySender;
         private Int32 port = 20777;
 
+        NoiseFilter pitchFilter = new NoiseFilter(20); //higher number, more smoothing
+        NoiseFilter yawFilter = new NoiseFilter(1);
+        NoiseFilter rollFilter = new NoiseFilter(20);
+
+        NoiseFilter surgeFilter = new NoiseFilter(10);
+
+        //KalmanFilter pitchFilter = new KalmanFilter(1, 1, 0.125f, 1, 0.1f, 0.0f);
+        //KalmanFilter yawFilter = new KalmanFilter(1, 1, 0.125f, 1, 0.1f, 0.0f);
+        //KalmanFilter rollFilter = new KalmanFilter(1, 1, 0.125f, 1, 0.1f, 0.0f);
         public GTA5TelemetryClient()
         {
             dataPacket.Initialize();
@@ -76,7 +85,7 @@ namespace GTAVTelemetry
                 Vector3 acceleration = localVelocity - lastLocalVelocity;
 
                 dataPacket.AccG[0] = float.IsNaN(acceleration.X) ? 0.0f : acceleration.X;
-                dataPacket.AccG[1] = float.IsNaN(acceleration.Y) ? 0.0f : acceleration.Y;
+                dataPacket.AccG[1] = surgeFilter.Filter(float.IsNaN(acceleration.Y) ? 0.0f : acceleration.Y);
                 dataPacket.AccG[2] = float.IsNaN(acceleration.Z) ? 0.0f : acceleration.Z;
 
                 lastLocalVelocity = localVelocity;
@@ -94,9 +103,13 @@ namespace GTAVTelemetry
 
                 Vector3 angularAcceleration = (vehicle.RotationVelocity - lastAngularVelocity) * (180.0f / 3.14f);
 
-                dataPacket.Pitch = float.IsNaN(vehicle.Rotation.X + angularAcceleration.X) ? 0.0f : vehicle.Rotation.X + angularAcceleration.X;
-                dataPacket.Roll = float.IsNaN(vehicle.Rotation.Y + angularAcceleration.Y) ? 0.0f : vehicle.Rotation.Y + angularAcceleration.Y;
-                dataPacket.Yaw = float.IsNaN(vehicle.Rotation.Z + angularAcceleration.Z) ? 0.0f : vehicle.Rotation.Z + angularAcceleration.Z;
+                float unfilteredPitch = float.IsNaN(vehicle.Rotation.X + angularAcceleration.X) ? 0.0f : vehicle.Rotation.X + angularAcceleration.X;
+                float unfilteredRoll = float.IsNaN(vehicle.Rotation.Y + angularAcceleration.Y) ? 0.0f : vehicle.Rotation.Y + angularAcceleration.Y;
+                float unfilteredYaw = float.IsNaN(vehicle.Rotation.Z + angularAcceleration.Z) ? 0.0f : vehicle.Rotation.Z + angularAcceleration.Z;
+
+                dataPacket.Pitch = pitchFilter.Filter(unfilteredPitch);
+                dataPacket.Roll = rollFilter.Filter(unfilteredRoll);
+                dataPacket.Yaw = yawFilter.Filter(unfilteredYaw);
 
                 lastAngularVelocity = vehicle.RotationVelocity;
 
@@ -121,7 +134,7 @@ namespace GTAVTelemetry
                 acceleration *= 0.125f; // need to scale this a bit otherwise it's super jerky
 
                 dataPacket.AccG[0] = float.IsNaN(acceleration.X) ? 0.0f : acceleration.X;
-                dataPacket.AccG[1] = float.IsNaN(acceleration.Y) ? 0.0f : acceleration.Y;
+                dataPacket.AccG[1] = surgeFilter.Filter(float.IsNaN(acceleration.Y) ? 0.0f : acceleration.Y);
                 dataPacket.AccG[2] = float.IsNaN(acceleration.Z) ? 0.0f : acceleration.Z;
 
                 lastLocalVelocity = localVelocity;

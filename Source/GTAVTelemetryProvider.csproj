@@ -56,6 +56,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "G:\Personal\GTAVTelemetryPlugin\trunk\source\bin\Debug\GTAVTelemetryProvider.dll" "G:\Simfeedback\provider\"
-copy /Y "G:\Personal\GTAVTelemetryPlugin\trunk\source\bin\Debug\GTAVTelemetryProvider.dll" "G:\Program Files (x86)\SteamLibrary\steamapps\common\Grand Theft Auto V\scripts"</PostBuildEvent>
+copy /Y "G:\Personal\GTAVTelemetryPlugin\trunk\source\bin\Debug\GTAVTelemetryProvider.dll" "G:\Program Files (x86)\SteamLibrary\steamapps\common\Grand Theft Auto V\scripts"
+copy /Y "G:\Personal\GTAVTelemetryPlugin\trunk\source\bin\Debug\TelemetryProviderBase.dll" "G:\Program Files (x86)\SteamLibrary\steamapps\common\Grand Theft Auto V\scripts"</PostBuildEvent>
   </PropertyGroup>
 </Project>

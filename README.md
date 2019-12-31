@@ -14,6 +14,8 @@ RELEASE NOTES
 =============
 v1.0 - First release, experimental traction loss.
 
+v1.1 - Removed thread sleep from telemetry provider, filtering of some violent forces, updated license, tweaked base provider profile.
+
 INSTALLATION INSTRUCTIONS 
 =========================
 
@@ -58,4 +60,5 @@ SUPPORT
 =======
 
 Support available through SimFeedback owner's discord
+
 https://opensfx.com/simfeedback-setup-and-tuning/#modes
