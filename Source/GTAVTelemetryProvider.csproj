@@ -48,7 +48,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SimFeedback\SimFeedback-AC-Servo\Src\SimFeedbackTelemetryProvider\SimFeedbackTelemetryProvider.csproj">
+    <ProjectReference Include="..\..\..\SimFeedback-AC-Servo\Src\SimFeedbackTelemetryProvider\SimFeedbackTelemetryProvider.csproj">
       <Project>{a43fc598-5e10-4730-83f8-ca0f6164c988}</Project>
       <Name>SimFeedbackTelemetryProvider</Name>
     </ProjectReference>
@@ -56,7 +56,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "G:\Personal\GTAVTelemetryPlugin\trunk\source\bin\Debug\GTAVTelemetryProvider.dll" "G:\Simfeedback\provider\"
-copy /Y "G:\Personal\GTAVTelemetryPlugin\trunk\source\bin\Debug\GTAVTelemetryProvider.dll" "G:\Program Files (x86)\SteamLibrary\steamapps\common\Grand Theft Auto V\scripts"
-copy /Y "G:\Personal\GTAVTelemetryPlugin\trunk\source\bin\Debug\TelemetryProviderBase.dll" "G:\Program Files (x86)\SteamLibrary\steamapps\common\Grand Theft Auto V\scripts"</PostBuildEvent>
+copy /Y "G:\Personal\GTAVTelemetryPlugin\trunk\source\bin\Debug\*.dll" "G:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto V\scripts"</PostBuildEvent>
   </PropertyGroup>
 </Project>

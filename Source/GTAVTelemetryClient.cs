@@ -32,6 +32,7 @@ using System.Windows.Forms;
 using GTA;
 using GTA.Native;
 using GTA.Math;
+using NoiseFilters;
 
 namespace GTAVTelemetry
 {
@@ -43,11 +44,13 @@ namespace GTAVTelemetry
         private TelemetrySender telemetrySender;
         private Int32 port = 20777;
 
-        NoiseFilter pitchFilter = new NoiseFilter(20); //higher number, more smoothing
-        NoiseFilter yawFilter = new NoiseFilter(1);
-        NoiseFilter rollFilter = new NoiseFilter(20);
+        NestedSmooth pitchFilter = new NestedSmooth(3, 6, 0.5f); //higher number, more smoothing
+        NestedSmooth yawFilter = new NestedSmooth( 3, 6, 0.5f );
+        NestedSmooth rollFilter = new NestedSmooth( 3, 6, 0.5f );
 
-        NoiseFilter surgeFilter = new NoiseFilter(10);
+        NestedSmooth swayFilter = new NestedSmooth( 3, 6, 0.5f );
+        NestedSmooth heaveFilter = new NestedSmooth( 3, 6, 0.5f );
+        NestedSmooth surgeFilter = new NestedSmooth( 3, 6, 0.5f );
 
         //KalmanFilter pitchFilter = new KalmanFilter(1, 1, 0.125f, 1, 0.1f, 0.0f);
         //KalmanFilter yawFilter = new KalmanFilter(1, 1, 0.125f, 1, 0.1f, 0.0f);
@@ -84,9 +87,9 @@ namespace GTAVTelemetry
 
                 Vector3 acceleration = localVelocity - lastLocalVelocity;
 
-                dataPacket.AccG[0] = float.IsNaN(acceleration.X) ? 0.0f : acceleration.X;
+                dataPacket.AccG[0] = swayFilter.Filter(float.IsNaN(acceleration.X) ? 0.0f : acceleration.X);
                 dataPacket.AccG[1] = surgeFilter.Filter(float.IsNaN(acceleration.Y) ? 0.0f : acceleration.Y);
-                dataPacket.AccG[2] = float.IsNaN(acceleration.Z) ? 0.0f : acceleration.Z;
+                dataPacket.AccG[2] = heaveFilter.Filter(float.IsNaN(acceleration.Z) ? 0.0f : acceleration.Z);
 
                 lastLocalVelocity = localVelocity;
 
@@ -133,9 +136,9 @@ namespace GTAVTelemetry
 
                 acceleration *= 0.125f; // need to scale this a bit otherwise it's super jerky
 
-                dataPacket.AccG[0] = float.IsNaN(acceleration.X) ? 0.0f : acceleration.X;
-                dataPacket.AccG[1] = surgeFilter.Filter(float.IsNaN(acceleration.Y) ? 0.0f : acceleration.Y);
-                dataPacket.AccG[2] = float.IsNaN(acceleration.Z) ? 0.0f : acceleration.Z;
+                dataPacket.AccG[ 0 ] = swayFilter.Filter( float.IsNaN( acceleration.X ) ? 0.0f : acceleration.X );
+                dataPacket.AccG[ 1 ] = surgeFilter.Filter( float.IsNaN( acceleration.Y ) ? 0.0f : acceleration.Y );
+                dataPacket.AccG[ 2 ] = heaveFilter.Filter( float.IsNaN( acceleration.Z ) ? 0.0f : acceleration.Z );
 
                 lastLocalVelocity = localVelocity;
 
